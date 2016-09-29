@@ -17,6 +17,7 @@ public class IO_file {
 
     public static final String FILE_INFORMACAO = "info.txt";
     public static final String FILE_CONFIG_TIME = "file_config_TIME";
+    public static final String FILE_CONFIG_ALERT = "file_config_ALERT";
     public static final String FILE_HISTORICO = "hist.txt";
     public static final String LAST_STATE = "laststate.txt";
     public static final String FILE_CONFIGURACAO = "config.txt";

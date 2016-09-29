@@ -1,26 +1,24 @@
 package com.iniciacao.android.lucas.design_1;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.iniciacao.android.lucas.design_1.tools.GetDataFromFile;
 import com.iniciacao.android.lucas.design_1.tools.IO_file;
-
-import java.util.Arrays;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -47,9 +45,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     private Spinner spinner_setTime;
 
-    private TextView txt_mensagemNotificação;
+    private TextView txt_mensagemNotificacao;
 
     private Button button_RecuperarSenha;
+    private Button button_mensagem_alerta;
 
 
     @Override
@@ -73,13 +72,18 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         getDataFromFile = new GetDataFromFile(this);
 
-        txt_mensagemNotificação = (TextView)findViewById(R.id.txt_mensagemNotificação);
+        txt_mensagemNotificacao = (TextView)findViewById(R.id.txt_mensagemNotificação);
 
         button_RecuperarSenha = (Button)findViewById(R.id.button_recuperarSenha);
 
+        button_mensagem_alerta = (Button) findViewById(R.id.button_mensagemNotificacao);
+        button_mensagem_alerta.setOnClickListener(this);
         button_RecuperarSenha.setOnClickListener(this);
 
         unitSpinner();
+
+        String text = new IO_file(getApplicationContext()).recuperar(IO_file.FILE_CONFIG_ALERT);
+        txt_mensagemNotificacao.setText(text);
 
     }
 
@@ -141,6 +145,28 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         if (v.getId() == R.id.button_recuperarSenha){
             callAlertDialog();
+        } else if (v.getId() == R.id.button_mensagemNotificacao) {
+            final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+            new AlertDialog.Builder(this)
+                .setMessage("Digite mensagem de alerta:")
+                .setView(input)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String text = input.getText().toString();
+                        txt_mensagemNotificacao.setText(text);
+                        new IO_file(getApplicationContext()).salvar(text, IO_file.FILE_CONFIG_ALERT);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .show();
         }
     }
 
