@@ -25,7 +25,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -531,9 +530,10 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (hasFocus) {
-            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-            startActivityForResult(intent, PICK_CONTACT);
-
+            if (edt_telefone_seguranca.getText().toString().isEmpty()) {
+                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+                startActivityForResult(intent, PICK_CONTACT);
+            }
         }
     }
 }
