@@ -34,8 +34,4 @@ dependencies {
     compile 'com.github.dmytrodanylyk:android-morphing-button:98a4986e56' // commit hash
     compile 'io.github.yavski:fab-speed-dial:1.0.0'
     compile 'com.github.paolorotolo:appintro:4.0.0'
-
-
-
-
 }

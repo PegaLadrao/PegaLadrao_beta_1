@@ -503,7 +503,6 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
                             phones.moveToFirst();
                             edt_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
                             edt_conf_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
-
                         }
                     }
                 }
