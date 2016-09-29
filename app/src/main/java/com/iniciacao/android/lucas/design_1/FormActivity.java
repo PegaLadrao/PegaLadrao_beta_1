@@ -545,6 +545,14 @@ public class FormActivity extends AppCompatActivity {
     }
 
 
+    /**
+     *
+     * Método responsável formatar dado para número de telefone.
+     *
+     * @param phone - string contento número de telefone.
+     *
+     * @return String formatada.
+     */
     private String formatPhone(String phone) {
         String res = "";
         char tmp;
