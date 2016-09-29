@@ -1,10 +1,12 @@
 package com.iniciacao.android.lucas.design_1;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
@@ -13,6 +15,8 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DimenRes;
 import android.support.annotation.IntegerRes;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,8 +48,6 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
 
     private IO_file file;
 
-    public static final String FILE_INFORMACAO = "info.txt";
-
     private SharedPreferences mSharedPreferences;
 
     private SharedPreferences.Editor mSharedPreferences_editor;
@@ -54,12 +56,15 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
 
     private LinearProgressButton btnMorph1;
 
-    private boolean passWordVisibility = false;
+    private final int REQUEST_PERMISSIONS_CODE_READ_CONTACTS = 2;
 
+    private boolean passWordVisibility = false;
 
     private final String SAVE = "Salvar Dados";
 
     private final String EDIT = "Editar";
+
+    private boolean PERMISSION_STATUS = false;
 
     private FormValidation formValidation;
 
@@ -85,6 +90,8 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
         view = getWindow().getDecorView().getRootView();
 
         formValidation = new FormValidation(view);
+
+        permissionRequest();
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -487,18 +494,18 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
                 if (resultCode == Activity.RESULT_OK) {
 
                     Uri contactData = data.getData();
-                    Cursor c =  managedQuery(contactData, null, null, null, null);
+                    Cursor c = managedQuery(contactData, null, null, null, null);
                     if (c.moveToFirst()) {
 
 
-                        String id =c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+                        String id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
 
-                        String hasPhone =c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                        String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
 
                         if (hasPhone.equalsIgnoreCase("1")) {
                             Cursor phones = getContentResolver().query(
-                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
-                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ id,
+                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id,
                                     null, null);
                             phones.moveToFirst();
                             edt_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
@@ -508,6 +515,7 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
                     }
                 }
                 break;
+
         }
     }
 
@@ -530,10 +538,37 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (hasFocus) {
-            if (edt_telefone_seguranca.getText().toString().isEmpty()) {
-                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-                startActivityForResult(intent, PICK_CONTACT);
-            }
+//            if (edt_telefone_seguranca.getText().toString().isEmpty()) {
+                if (PERMISSION_STATUS) {
+                    Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+                    startActivityForResult(intent, PICK_CONTACT);
+                }
+            //}
         }
     }
+
+    /**
+     *
+     * Método responsável por verificar as permissões de acesso ao gps e envio de sms
+     * @return <code>true</code> = permissões concedidas <code>false</code> = permissões negadas
+     */
+    private boolean permissionRequest(){
+
+        if(ContextCompat.checkSelfPermission(FormActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED){
+
+            ActivityCompat.requestPermissions(FormActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_PERMISSIONS_CODE_READ_CONTACTS);
+
+        }
+        else {
+
+            PERMISSION_STATUS = true;
+            return true;
+
+        }
+
+        PERMISSION_STATUS = false;
+        return false;
+
+    }
+
 }
