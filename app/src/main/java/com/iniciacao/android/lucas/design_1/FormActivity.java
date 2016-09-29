@@ -39,7 +39,7 @@ import com.iniciacao.android.lucas.design_1.tools.FormValidation;
 import com.iniciacao.android.lucas.design_1.tools.IO_file;
 import com.iniciacao.android.lucas.design_1.materia_design.ProgressGenerator;
 
-public class FormActivity extends AppCompatActivity implements View.OnFocusChangeListener{
+public class FormActivity extends AppCompatActivity {
 
     private EditText edt_nome, edt_telefone, edt_senha, edt_confi_senha,
             edt_telefone_seguranca, edt_conf_telefone_seguranca;
@@ -121,9 +121,6 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final int DRAWABLE_LEFT = 0;
-                final int DRAWABLE_TOP = 1;
-                final int DRAWABLE_RIGHT = 2;
-                final int DRAWABLE_BOTTOM = 3;
 
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     if(event.getRawX() >= (edt_senha.getRight() - edt_senha.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
@@ -144,8 +141,59 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
             }
         });
 
+        edt_telefone_seguranca.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                final int DRAWABLE_LEFT = 0;
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    if(event.getRawX() >= (edt_telefone_seguranca.getRight() - edt_telefone_seguranca.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
+
+                        if(PERMISSION_STATUS) {
+
+                            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+                            startActivityForResult(intent, PICK_CONTACT);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        });
+
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case (PICK_CONTACT) :
+                if (resultCode == Activity.RESULT_OK) {
+
+                    Uri contactData = data.getData();
+                    Cursor c = managedQuery(contactData, null, null, null, null);
+                    if (c.moveToFirst()) {
+
+
+                        String id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+
+                        String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
+                        if (hasPhone.equalsIgnoreCase("1")) {
+                            Cursor phones = getContentResolver().query(
+                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id,
+                                    null, null);
+                            phones.moveToFirst();
+                            edt_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
+                            edt_conf_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
+
+                        }
+                    }
+                }
+                break;
+        }
+    }
 
     /**
      * Metodo responsavel por inicializacao dos campos de cadastro
@@ -181,8 +229,6 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
 
         edt_telefone_seguranca = ( EditText ) this.findViewById( R.id.editText_TelefoneSeg );
         edt_telefone_seguranca.addTextChangedListener( new PhoneNumberFormattingTextWatcher() );
-
-        edt_telefone_seguranca.setOnFocusChangeListener(this);
 
         edt_conf_telefone_seguranca = ( EditText ) this.findViewById( R.id.editText_ConfTelefoneSeg );
         edt_conf_telefone_seguranca.addTextChangedListener( new PhoneNumberFormattingTextWatcher() );
@@ -485,40 +531,6 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
     }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case (PICK_CONTACT) :
-                if (resultCode == Activity.RESULT_OK) {
-
-                    Uri contactData = data.getData();
-                    Cursor c = managedQuery(contactData, null, null, null, null);
-                    if (c.moveToFirst()) {
-
-
-                        String id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
-
-                        String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-
-                        if (hasPhone.equalsIgnoreCase("1")) {
-                            Cursor phones = getContentResolver().query(
-                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id,
-                                    null, null);
-                            phones.moveToFirst();
-                            edt_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
-                            edt_conf_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
-
-                        }
-                    }
-                }
-                break;
-
-        }
-    }
-
     private String formatPhone(String phone) {
         String res = "";
         char tmp;
@@ -535,17 +547,6 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
         return res;
     }
 
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) {
-//            if (edt_telefone_seguranca.getText().toString().isEmpty()) {
-                if (PERMISSION_STATUS) {
-                    Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-                    startActivityForResult(intent, PICK_CONTACT);
-                }
-            //}
-        }
-    }
 
     /**
      *
