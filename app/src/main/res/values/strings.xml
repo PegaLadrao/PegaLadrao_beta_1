@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Pega Ladrão</string>
+
+    <string name="cadastro_campos">Campo obrigatorio</string>
+    <string name="cadastro_nomeInvalido">Nome invalido</string>
+    <string name="cadastro_telefoneInvalido">Formato invalido -> (0xx) xxxx xxxx</string>
+    <string name="cadastro_senhaInvalida">Senha deve conter entre 5 e 15 caracteres</string>
+    <string name="cadastro_confSenhaInvalido">As senha não correspondem</string>
+    <string name="cadastro_telefoneSegInvalido">Telefone de segurança não pode ser igual ao já cadastrado</string>
+    <string name="cadastro_confTelefoneSegIvalido">Telefone de segurança não correspondem</string>
+    <string name="observacao">Obs: Em alguns estados o nono digito ja foi inserido. Favor se seu estado já possui inseri-lo em seu telefone e telefone segurança.</string>
+    <string name="alert_dialog_editar_dados">Para habilitar edição digite a senha</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="button_fragment_cadastro">SALVAR</string>
+    <string name="text_view_fragment_cadastro">Todos os campos são obrigatórios**</string>
+    <string name="button_recuperar_senha_fragment">Recuperar Senha</string>
+    <string name="textView_configuracoes">Configurações:</string>
+    <string name="textView_smsTime">Intervalo entre sms</string>
+    <string name="button_msm_notificacao_dialog">Alterar mensagem de alerta</string>"
+
+    <!-- String responsaveis pelo campo de cadastro -->
+
+    <string name="alert_dialog_editar_recuperarSenha">Para recuperar </string>
+    <string name="label_notificacao_entrada_senha">Entre com sua senha</string>
+
+    <array name="timeLIst">
+        <item>15 segundos</item>
+        <item>30 segundos</item>
+        <item>1 minuto</item>
+        <item>2 minutos</item>
+        <item>3 minutos</item>
+        <item>4 minutos</item>
+        <item>5 minutos</item>
+    </array>
+
+</resources>
