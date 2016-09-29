@@ -27,6 +27,22 @@ public class SMSLocation implements LocationListener {
     private String number = "NO_NUMBER";
     private boolean ative;
 
+    public long getSMSTime() {
+        return SMSTime;
+    }
+
+    public void setSMSTime(long SMSTime) {
+        this.SMSTime = SMSTime;
+    }
+
+    public long getGPSTime() {
+        return GPSTime;
+    }
+
+    public void setGPSTime(long GPSTime) {
+        this.GPSTime = GPSTime;
+    }
+
     public boolean isAtive() {
         return ative;
     }
@@ -41,12 +57,12 @@ public class SMSLocation implements LocationListener {
             return;
         }
         if (this.ative == false && ative == true) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSTime, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, getGPSTime(), 0, this);
         } else if (this.ative == true && ative == false) {
             locationManager.removeUpdates(this);
         }
         this.ative = ative;
-        if(ative) handler.postDelayed(r, SMSTime);
+        if(ative) handler.postDelayed(r, getSMSTime());
     }
 
     public String getNumber() {
@@ -59,9 +75,16 @@ public class SMSLocation implements LocationListener {
 
     public SMSLocation(Context context, final long SMSTime, long GPSTime, final boolean ative) {
         this.context = context;
-        this.SMSTime = SMSTime;
-        this.GPSTime = GPSTime;
+        this.setSMSTime(SMSTime);
+        this.setGPSTime(GPSTime);
         this.handler = new Handler();
+
+        IO_file io_file = new IO_file(context);
+        String s = io_file.recuperar(IO_file.FILE_CONFIG_TIME);
+        if (!s.isEmpty()) {
+            setSMSTime(Long.parseLong(s));
+            setGPSTime(Long.parseLong(s));
+        }
 
         r = new Runnable() {
             @Override
@@ -69,7 +92,7 @@ public class SMSLocation implements LocationListener {
                 sendSMS();
 
                 if(isAtive()) {
-                    handler.postDelayed(r, SMSTime);
+                    handler.postDelayed(r, getSMSTime());
                 }
             }
         };
