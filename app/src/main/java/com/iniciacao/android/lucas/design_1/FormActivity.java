@@ -5,6 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DimenRes;
 import android.support.annotation.IntegerRes;
@@ -32,7 +35,7 @@ import com.iniciacao.android.lucas.design_1.tools.FormValidation;
 import com.iniciacao.android.lucas.design_1.tools.IO_file;
 import com.iniciacao.android.lucas.design_1.materia_design.ProgressGenerator;
 
-public class FormActivity extends AppCompatActivity {
+public class FormActivity extends AppCompatActivity implements View.OnFocusChangeListener{
 
     private EditText edt_nome, edt_telefone, edt_senha, edt_confi_senha,
             edt_telefone_seguranca, edt_conf_telefone_seguranca;
@@ -168,6 +171,7 @@ public class FormActivity extends AppCompatActivity {
         edt_telefone_seguranca = ( EditText ) this.findViewById( R.id.editText_TelefoneSeg );
         edt_telefone_seguranca.addTextChangedListener( new PhoneNumberFormattingTextWatcher() );
 
+        edt_telefone_seguranca.setOnFocusChangeListener(this);
 
         edt_conf_telefone_seguranca = ( EditText ) this.findViewById( R.id.editText_ConfTelefoneSeg );
         edt_conf_telefone_seguranca.addTextChangedListener( new PhoneNumberFormattingTextWatcher() );
@@ -469,4 +473,52 @@ public class FormActivity extends AppCompatActivity {
         return getResources().getInteger(resId);
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                Cursor c = null;
+                try {
+                    c = getContentResolver().query(uri, null, null, null, null);
+                    if (c != null && c.moveToFirst()) {
+                        String phone = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        edt_telefone_seguranca.setText(formatPhone(phone));
+                        edt_conf_telefone_seguranca.setText(formatPhone(phone));
+                    }
+                } finally {
+                    if (c != null) {
+                        c.close();
+                    }
+                }
+            }
+        }
+    }
+
+    private String formatPhone(String phone) {
+        String res = "";
+        char tmp;
+        int i = 0, len = phone.length();
+
+        while(i < len) {
+            tmp = phone.charAt(i);
+            if (Character.isDigit(tmp)) {
+                res += tmp;
+            }
+            i++;
+        }
+
+        return res;
+    }
+
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        if (hasFocus) {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+            intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
+            startActivityForResult(intent, 1);
+        }
+    }
 }
