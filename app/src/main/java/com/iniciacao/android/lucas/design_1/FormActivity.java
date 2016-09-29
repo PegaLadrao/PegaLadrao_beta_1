@@ -70,8 +70,6 @@ public class FormActivity extends AppCompatActivity {
 
     private View view, customAlert;
 
-    private boolean firstFocus;
-
     static final int PICK_CONTACT=1;
 
     @Override
@@ -81,8 +79,6 @@ public class FormActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_form);
         setSupportActionBar(toolbar);
 
-        Window window = getWindow();
-
 
         assert toolbar != null;
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white);
@@ -90,6 +86,8 @@ public class FormActivity extends AppCompatActivity {
         view = getWindow().getDecorView().getRootView();
 
         formValidation = new FormValidation(view);
+
+        file = new IO_file(this);
 
         permissionRequest();
 
@@ -150,8 +148,10 @@ public class FormActivity extends AppCompatActivity {
 
                         if(PERMISSION_STATUS) {
 
+                            // Chamando agenda de contatos nativa do smartphone
                             Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
                             startActivityForResult(intent, PICK_CONTACT);
+
                             return true;
                         }
                     }
@@ -173,8 +173,6 @@ public class FormActivity extends AppCompatActivity {
                     Uri contactData = data.getData();
                     Cursor c = managedQuery(contactData, null, null, null, null);
                     if (c.moveToFirst()) {
-
-
                         String id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
 
                         String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
@@ -237,9 +235,6 @@ public class FormActivity extends AppCompatActivity {
 
         mSharedPreferences_editor = mSharedPreferences.edit();
 
-        file = new IO_file(this);
-
-
     }
 
 
@@ -278,7 +273,9 @@ public class FormActivity extends AppCompatActivity {
 
 
     /**
-     * Metodo reponsavel por formatar os dados que seram salvos no arquivo
+     *
+     * Método reponsável por formatar os dados que seram salvos no arquivo
+     *
      * @return <code>String</code> formatada
      */
     private String formatToFile(){
@@ -294,10 +291,20 @@ public class FormActivity extends AppCompatActivity {
                 telefone_seguranca_s + "\n";
     }
 
+    /**
+     *
+     * Método responsável por salvar dados preenchidos pelo usuário já formatados
+     */
     public void saveToFile() {
         file.salvar(formatToFile(), IO_file.FILE_INFORMACAO);
     }
 
+    /**
+     *
+     * Método responsável por recuperar e preencher os campos do formulário, para que possam ser editados.
+     *
+     * @return <code>true</code> recuperação válida. <code>false</code> não foi possível recuperar os arquivos.
+     */
     private boolean restrieve(){
         String info = file.recuperar(IO_file.FILE_INFORMACAO);
 
@@ -324,15 +331,21 @@ public class FormActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     *
+     * Método responsável por habilitar ou não a edição dos dados do usuário.
+     *
+     * @param action - valor lógico responsável pelo controle de habilitaçào.
+     */
     public void enableEdition( boolean action ){
 
         if( !action ){
 
-            edt_nome.setEnabled( action );
+            edt_nome.setEnabled( false );
 
-            edt_telefone.setEnabled( action );
+            edt_telefone.setEnabled( false );
 
-            edt_telefone_seguranca.setEnabled( action );
+            edt_telefone_seguranca.setEnabled( false );
 
             edt_senha.setVisibility( View.GONE );
 
@@ -342,11 +355,11 @@ public class FormActivity extends AppCompatActivity {
 
         }else{
 
-            edt_nome.setEnabled( action );
+            edt_nome.setEnabled( true );
 
-            edt_telefone.setEnabled( action );
+            edt_telefone.setEnabled( true );
 
-            edt_telefone_seguranca.setEnabled( action );
+            edt_telefone_seguranca.setEnabled( true );
 
             edt_senha.setVisibility( View.VISIBLE );
 
@@ -397,6 +410,7 @@ public class FormActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext()," Invalido ", Toast.LENGTH_SHORT).show();
             }
         }else {
+
             restrieve();
 
             customAlert = getLayoutInflater().inflate(R.layout.dialog_change_data, null);
