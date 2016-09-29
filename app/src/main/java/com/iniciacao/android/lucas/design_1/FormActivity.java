@@ -1,5 +1,6 @@
 package com.iniciacao.android.lucas.design_1;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -64,6 +65,10 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
     private FormValidation formValidation;
 
     private View view, customAlert;
+
+    private boolean firstFocus;
+
+    static final int PICK_CONTACT=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -476,23 +481,34 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data != null) {
-            Uri uri = data.getData();
-            if (uri != null) {
-                Cursor c = null;
-                try {
-                    c = getContentResolver().query(uri, null, null, null, null);
-                    if (c != null && c.moveToFirst()) {
-                        String phone = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        edt_telefone_seguranca.setText(formatPhone(phone));
-                        edt_conf_telefone_seguranca.setText(formatPhone(phone));
-                    }
-                } finally {
-                    if (c != null) {
-                        c.close();
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case (PICK_CONTACT) :
+                if (resultCode == Activity.RESULT_OK) {
+
+                    Uri contactData = data.getData();
+                    Cursor c =  managedQuery(contactData, null, null, null, null);
+                    if (c.moveToFirst()) {
+
+
+                        String id =c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+
+                        String hasPhone =c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
+                        if (hasPhone.equalsIgnoreCase("1")) {
+                            Cursor phones = getContentResolver().query(
+                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ id,
+                                    null, null);
+                            phones.moveToFirst();
+                            edt_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
+                            edt_conf_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
+
+                        }
                     }
                 }
-            }
+                break;
         }
     }
 
@@ -515,10 +531,9 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (hasFocus) {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-            intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
-            startActivityForResult(intent, 1);
+            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+            startActivityForResult(intent, PICK_CONTACT);
+
         }
     }
 }
