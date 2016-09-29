@@ -1,10 +1,12 @@
 package com.iniciacao.android.lucas.design_1;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
@@ -13,6 +15,8 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DimenRes;
 import android.support.annotation.IntegerRes;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,7 +39,7 @@ import com.iniciacao.android.lucas.design_1.tools.FormValidation;
 import com.iniciacao.android.lucas.design_1.tools.IO_file;
 import com.iniciacao.android.lucas.design_1.materia_design.ProgressGenerator;
 
-public class FormActivity extends AppCompatActivity implements View.OnFocusChangeListener{
+public class FormActivity extends AppCompatActivity {
 
     private EditText edt_nome, edt_telefone, edt_senha, edt_confi_senha,
             edt_telefone_seguranca, edt_conf_telefone_seguranca;
@@ -43,8 +47,6 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
     private Resources mResources;
 
     private IO_file file;
-
-    public static final String FILE_INFORMACAO = "info.txt";
 
     private SharedPreferences mSharedPreferences;
 
@@ -54,18 +56,19 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
 
     private LinearProgressButton btnMorph1;
 
-    private boolean passWordVisibility = false;
+    private final int REQUEST_PERMISSIONS_CODE_READ_CONTACTS = 2;
 
+    private boolean passWordVisibility = false;
 
     private final String SAVE = "Salvar Dados";
 
     private final String EDIT = "Editar";
 
+    private boolean PERMISSION_STATUS = false;
+
     private FormValidation formValidation;
 
     private View view, customAlert;
-
-    private boolean firstFocus;
 
     static final int PICK_CONTACT=1;
 
@@ -76,8 +79,6 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_form);
         setSupportActionBar(toolbar);
 
-        Window window = getWindow();
-
 
         assert toolbar != null;
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white);
@@ -85,6 +86,10 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
         view = getWindow().getDecorView().getRootView();
 
         formValidation = new FormValidation(view);
+
+        file = new IO_file(this);
+
+        permissionRequest();
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,9 +119,6 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final int DRAWABLE_LEFT = 0;
-                final int DRAWABLE_TOP = 1;
-                final int DRAWABLE_RIGHT = 2;
-                final int DRAWABLE_BOTTOM = 3;
 
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     if(event.getRawX() >= (edt_senha.getRight() - edt_senha.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
@@ -137,8 +139,59 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
             }
         });
 
+        edt_telefone_seguranca.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                final int DRAWABLE_LEFT = 0;
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    if(event.getRawX() >= (edt_telefone_seguranca.getRight() - edt_telefone_seguranca.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
+
+                        if(PERMISSION_STATUS) {
+
+                            // Chamando agenda de contatos nativa do smartphone
+                            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+                            startActivityForResult(intent, PICK_CONTACT);
+
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        });
+
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case (PICK_CONTACT) :
+                if (resultCode == Activity.RESULT_OK) {
+
+                    Uri contactData = data.getData();
+                    Cursor c = managedQuery(contactData, null, null, null, null);
+                    if (c.moveToFirst()) {
+                        String id = c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+
+                        String hasPhone = c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
+                        if (hasPhone.equalsIgnoreCase("1")) {
+                            Cursor phones = getContentResolver().query(
+                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id,
+                                    null, null);
+                            phones.moveToFirst();
+                            edt_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
+                            edt_conf_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
+
+                        }
+                    }
+                }
+                break;
+        }
+    }
 
     /**
      * Metodo responsavel por inicializacao dos campos de cadastro
@@ -175,17 +228,12 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
         edt_telefone_seguranca = ( EditText ) this.findViewById( R.id.editText_TelefoneSeg );
         edt_telefone_seguranca.addTextChangedListener( new PhoneNumberFormattingTextWatcher() );
 
-        edt_telefone_seguranca.setOnFocusChangeListener(this);
-
         edt_conf_telefone_seguranca = ( EditText ) this.findViewById( R.id.editText_ConfTelefoneSeg );
         edt_conf_telefone_seguranca.addTextChangedListener( new PhoneNumberFormattingTextWatcher() );
 
         mSharedPreferences = this.getSharedPreferences("button_state", MODE_PRIVATE);
 
         mSharedPreferences_editor = mSharedPreferences.edit();
-
-        file = new IO_file(this);
-
 
     }
 
@@ -225,7 +273,9 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
 
 
     /**
-     * Metodo reponsavel por formatar os dados que seram salvos no arquivo
+     *
+     * Método reponsável por formatar os dados que seram salvos no arquivo
+     *
      * @return <code>String</code> formatada
      */
     private String formatToFile(){
@@ -241,10 +291,20 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
                 telefone_seguranca_s + "\n";
     }
 
+    /**
+     *
+     * Método responsável por salvar dados preenchidos pelo usuário já formatados
+     */
     public void saveToFile() {
         file.salvar(formatToFile(), IO_file.FILE_INFORMACAO);
     }
 
+    /**
+     *
+     * Método responsável por recuperar e preencher os campos do formulário, para que possam ser editados.
+     *
+     * @return <code>true</code> recuperação válida. <code>false</code> não foi possível recuperar os arquivos.
+     */
     private boolean restrieve(){
         String info = file.recuperar(IO_file.FILE_INFORMACAO);
 
@@ -271,15 +331,21 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
         return true;
     }
 
+    /**
+     *
+     * Método responsável por habilitar ou não a edição dos dados do usuário.
+     *
+     * @param action - valor lógico responsável pelo controle de habilitaçào.
+     */
     public void enableEdition( boolean action ){
 
         if( !action ){
 
-            edt_nome.setEnabled( action );
+            edt_nome.setEnabled( false );
 
-            edt_telefone.setEnabled( action );
+            edt_telefone.setEnabled( false );
 
-            edt_telefone_seguranca.setEnabled( action );
+            edt_telefone_seguranca.setEnabled( false );
 
             edt_senha.setVisibility( View.GONE );
 
@@ -289,11 +355,11 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
 
         }else{
 
-            edt_nome.setEnabled( action );
+            edt_nome.setEnabled( true );
 
-            edt_telefone.setEnabled( action );
+            edt_telefone.setEnabled( true );
 
-            edt_telefone_seguranca.setEnabled( action );
+            edt_telefone_seguranca.setEnabled( true );
 
             edt_senha.setVisibility( View.VISIBLE );
 
@@ -344,6 +410,7 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
                 Toast.makeText(getApplicationContext()," Invalido ", Toast.LENGTH_SHORT).show();
             }
         }else {
+
             restrieve();
 
             customAlert = getLayoutInflater().inflate(R.layout.dialog_change_data, null);
@@ -478,38 +545,14 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
     }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case (PICK_CONTACT) :
-                if (resultCode == Activity.RESULT_OK) {
-
-                    Uri contactData = data.getData();
-                    Cursor c =  managedQuery(contactData, null, null, null, null);
-                    if (c.moveToFirst()) {
-
-
-                        String id =c.getString(c.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
-
-                        String hasPhone =c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-
-                        if (hasPhone.equalsIgnoreCase("1")) {
-                            Cursor phones = getContentResolver().query(
-                                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,
-                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ id,
-                                    null, null);
-                            phones.moveToFirst();
-                            edt_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
-                            edt_conf_telefone_seguranca.setText(formatPhone(phones.getString(phones.getColumnIndex("data1"))));
-                        }
-                    }
-                }
-                break;
-        }
-    }
-
+    /**
+     *
+     * Método responsável formatar dado para número de telefone.
+     *
+     * @param phone - string contento número de telefone.
+     *
+     * @return String formatada.
+     */
     private String formatPhone(String phone) {
         String res = "";
         char tmp;
@@ -526,13 +569,29 @@ public class FormActivity extends AppCompatActivity implements View.OnFocusChang
         return res;
     }
 
-    @Override
-    public void onFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) {
-            if (edt_telefone_seguranca.getText().toString().isEmpty()) {
-                Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-                startActivityForResult(intent, PICK_CONTACT);
-            }
+
+    /**
+     *
+     * Método responsável por verificar as permissões de acesso ao gps e envio de sms
+     * @return <code>true</code> = permissões concedidas <code>false</code> = permissões negadas
+     */
+    private boolean permissionRequest(){
+
+        if(ContextCompat.checkSelfPermission(FormActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED){
+
+            ActivityCompat.requestPermissions(FormActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_PERMISSIONS_CODE_READ_CONTACTS);
+
         }
+        else {
+
+            PERMISSION_STATUS = true;
+            return true;
+
+        }
+
+        PERMISSION_STATUS = false;
+        return false;
+
     }
+
 }
