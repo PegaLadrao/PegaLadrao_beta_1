@@ -48,11 +48,6 @@ public class Detection implements SensorEventListener {
     public static boolean DISABLE = false;
     public static boolean ABLE = true;
 
-    public void changeState() {
-        if(detection) disableDetection();
-        else enableDetection();
-    }
-
     public void changeStateTo(boolean detection_l) {
         if(detection_l) enableDetection();
         else disableDetection();
@@ -67,8 +62,6 @@ public class Detection implements SensorEventListener {
         detection = false;
         disableSensor();
     }
-
-
 
     @Override
     public void onSensorChanged(SensorEvent event) {

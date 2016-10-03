@@ -51,6 +51,14 @@ public class MyService extends Service {
         }
     }
 
+    public void disableSensor() {
+        detection.disableDetection();
+    }
+
+    public void enableSensor() {
+        detection.enableDetection();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         message("onStartCommand");
@@ -67,8 +75,8 @@ public class MyService extends Service {
 
 
     // ==================== utility ==================== //
-    public void changeStateOfSensor() {
-        detection.changeState();
+    public void changeSensorStateTo(boolean state) {
+        detection.changeStateTo(state);
         saveLastState();
     }
 

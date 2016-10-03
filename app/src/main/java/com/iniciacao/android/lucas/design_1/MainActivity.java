@@ -433,7 +433,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (btnMorph.getText() == DISABLE) {
 
-                mVirtualService.changeSensorstate();
+                mVirtualService.disableSensor();
 
                 morphToSquare(btnMorph, 500, ENABLE);
 
@@ -456,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
 
             } else {
 
-                mVirtualService.changeSensorstate();
+                mVirtualService.enableDetection();
 
                 morphToFailure(btnMorph, DISABLE);
 

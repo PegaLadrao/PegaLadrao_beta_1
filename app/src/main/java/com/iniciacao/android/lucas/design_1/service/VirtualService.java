@@ -14,6 +14,7 @@ public class VirtualService {
 
     // Activity which instanced the class
     private Activity activity;
+    private MyService mservice;
 
     private boolean serviceIsBound = false;
 
@@ -25,9 +26,7 @@ public class VirtualService {
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            MyService myService = ((MyService.LocalBinder) service).getService();
-            myService.changeStateOfSensor();
-            onUnbindService();
+            mservice = ((MyService.LocalBinder) service).getService();
         }
 
         @Override
@@ -36,10 +35,35 @@ public class VirtualService {
         }
     };
 
-    public void changeSensorstate() {
-        onBindService();
+    public void disableSensor() {
+        (new MyAsyncTask(mservice) {
+            @Override
+            public void task() {
+                mservice.disableSensor();
+            }
+            @Override
+            public void update() {
+                updateObject(mservice);
+            }
+            @Override
+            public void errorTaskFailed() {}
+        }).startTask();
     }
 
+    public void enableDetection() {
+        (new MyAsyncTask(mservice) {
+            @Override
+            public void task() {
+                mservice.enableSensor();
+            }
+            @Override
+            public void update() {
+                updateObject(mservice);
+            }
+            @Override
+            public void errorTaskFailed() {}
+        }).startTask();
+    }
 
     public void onBindService() {
         if(!serviceIsBound) {
