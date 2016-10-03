@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,16 +32,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     private final static String TAG = "TAG";
 
-    private final String msg_alertaPadrao = "Mensagem de alerta que irá aparecer na tela de bloqueio. " +
-            "Para editar, clique no botão ALTERAR MENSAGEM DE ALERTA."+ "\n";
+    private final String msg_alertaPadraoObs = "Mensagem padrão: ALERTA, rastreando telefone";
 
-    private String msg_alerta;
-
-    private String[] infos;
-
-    private String info;
-
-    private String msgPadrão;
+    public static final String msg_alertaPadrao = "ALERTA, rastreando telefone";
 
     public static final String FILE_INFORMACAO = "info.txt";
 
@@ -54,7 +48,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     private Spinner spinner_setTime;
 
-    private TextView txt_mensagemNotificacao;
+    private TextView txt_mensagemAlerta;
 
     private Button button_RecuperarSenha;
 
@@ -87,7 +81,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         getDataFromFile = new GetDataFromFile(this);
 
-        txt_mensagemNotificacao = (TextView)findViewById(R.id.txt_mensagemNotificação);
+        txt_mensagemAlerta = (TextView)findViewById(R.id.txt_mensagemAlerta);
 
         relativeLayout = (RelativeLayout)findViewById(R.id.relativeLayout_settings);
 
@@ -99,9 +93,19 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         unitSpinner();
 
-        String text = new IO_file(getApplicationContext()).recuperar(IO_file.FILE_CONFIG_ALERT);
-        txt_mensagemNotificacao.setText(text);
+        setMensagemAlerta();
 
+    }
+
+    private void setMensagemAlerta(){
+
+        if (file.checkFile(IO_file.FILE_CONFIG_ALERT)){
+            String text = new IO_file(getApplicationContext()).recuperar(IO_file.FILE_CONFIG_ALERT);
+            txt_mensagemAlerta.setText(text);
+        }else {
+            txt_mensagemAlerta.setText(msg_alertaPadraoObs);
+            new IO_file(getApplicationContext()).salvar(msg_alertaPadrao, IO_file.FILE_CONFIG_ALERT);
+        }
     }
 
     private int getIdx(String s) {
@@ -163,27 +167,43 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         if (v.getId() == R.id.button_recuperarSenha){
             callAlertDialog();
         } else if (v.getId() == R.id.button_mensagemNotificacao) {
-            final EditText input = new EditText(this);
-            input.setInputType(InputType.TYPE_CLASS_TEXT);
 
-            new AlertDialog.Builder(this)
-                    .setMessage("Digite mensagem de alerta:")
-                    .setView(input)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String text = input.getText().toString();
-                            txt_mensagemNotificacao.setText(text);
-                            new IO_file(getApplicationContext()).salvar(text, IO_file.FILE_CONFIG_ALERT);
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    })
-                    .show();
+            if(file.checkFile(IO_file.FILE_CONFIG_ALERT)) {
+
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+                new AlertDialog.Builder(this)
+                        .setMessage("Digite mensagem de alerta:")
+                        .setView(input)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String text = input.getText().toString();
+                                txt_mensagemAlerta.setText(text);
+                                new IO_file(getApplicationContext()).salvar(text, IO_file.FILE_CONFIG_ALERT);
+                            }
+                        })
+                        .setNegativeButton("Mensagem padrão", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                txt_mensagemAlerta.setText(msg_alertaPadraoObs);
+                                new IO_file(getApplicationContext()).salvar(msg_alertaPadrao, IO_file.FILE_CONFIG_ALERT);
+                                dialog.cancel();
+                            }
+                        })
+                        .show();
+            }else {
+                Snackbar.make(relativeLayout,"Você não possui dados cadastrados", Snackbar.LENGTH_LONG)
+                        .setAction("\nCADASTRAR", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(SettingsActivity.this, FormActivity.class);
+                                startActivity(intent);
+                            }
+                        })
+                        .show();
+            }
         }
     }
 

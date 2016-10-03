@@ -84,6 +84,14 @@
                 android:id="@+id/btn_checkPassword"
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/activity_vertical_margin" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:text="Teste"
+                android:id="@+id/tv_msgAlerta"
+                android:layout_gravity="center"/>
         </LinearLayout>
 
     </FrameLayout>

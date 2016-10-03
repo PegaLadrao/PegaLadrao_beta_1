@@ -37,11 +37,15 @@ public class LockScreen extends AppCompatActivity {
 
     private TextView tv_error;
 
+    private TextView tv_msgAlerta;
+
     private Vibrator vibrator;
 
     private GetDataFromFile getDataFromFile;
 
     private InputMethodManager inputMethodManager;
+
+    private IO_file file;
 
     private EditText edt_passWord;
 
@@ -79,6 +83,8 @@ public class LockScreen extends AppCompatActivity {
 
         tv_error = (TextView)findViewById(R.id.tv_error);
 
+        tv_msgAlerta = (TextView)findViewById(R.id.tv_msgAlerta);
+
         tv_error.setVisibility(View.GONE);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -90,6 +96,17 @@ public class LockScreen extends AppCompatActivity {
         inputMethodManager = (InputMethodManager) LockScreen.this.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         getDataFromFile = new GetDataFromFile(this);
+
+        file = new IO_file(this);
+
+
+
+        if(file.checkFile(IO_file.FILE_CONFIG_ALERT)){
+            String text = new IO_file(getApplicationContext()).recuperar(IO_file.FILE_CONFIG_ALERT);
+            tv_msgAlerta.setText(text);
+        }else {
+            tv_msgAlerta.setText("ALERTA, Rastreando telefone");
+        }
 
         edt_passWord.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -223,9 +240,11 @@ public class LockScreen extends AppCompatActivity {
     private void checkPassWord(){
         String passWord = getDataFromFile.getData("password");
 
+        String numeroTel = getDataFromFile.getData("tel");
+
         if (!edt_passWord.getText().toString().equals( passWord )) {
             tv_error.setVisibility(View.VISIBLE);
-            tv_error.setText("Senha Invalida");
+            tv_error.setText("Senha Invalida. Caso tenha esquecido a senha, insira os quatro ultimos digitos de seu numero de telefone ");
         }else{
             setAtive(false);
             (new MyAsyncTask(myService) {

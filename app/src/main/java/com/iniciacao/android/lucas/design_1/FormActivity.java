@@ -193,6 +193,17 @@ public class FormActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == REQUEST_PERMISSIONS_CODE_READ_CONTACTS){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                PERMISSION_STATUS = true;
+            }
+        }
+    }
+
     /**
      * Metodo responsavel por inicializacao dos campos de cadastro
      */
