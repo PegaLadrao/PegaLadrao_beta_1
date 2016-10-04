@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.iniciacao.android.lucas.design_1.LockScreen;
 import com.iniciacao.android.lucas.design_1.administration.AdminManager;
+import com.iniciacao.android.lucas.design_1.tools.IO_file;
 
 /**
  * Created by chendehua on 15/12/31.
@@ -85,13 +86,15 @@ public class Detection implements SensorEventListener {
                    // makeText(Integer.toString(timer));
                     if (timer == 0) {
                         makeText("gesture detected");
-                        //dialog();
-                        /*
-                        *
-                        * do something
-                        *
-                        * */
-                        lockScreen();
+                        IO_file file = new IO_file(mContext);
+                        String state = file.recuperar(String.valueOf(IO_file.LAST_STATE));
+                        if (state.isEmpty()) {
+                            lockScreen();
+                        } else {
+                            if (!Boolean.parseBoolean(state)) {
+                                lockScreen();
+                            }
+                        }
                     }
 
                     lastUpdate += 100;
