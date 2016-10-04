@@ -21,6 +21,7 @@ public class VirtualService {
     public VirtualService(Activity activity) {
         this.activity = activity;
         onStart();
+        onBindService();
     }
 
     ServiceConnection serviceConnection = new ServiceConnection() {

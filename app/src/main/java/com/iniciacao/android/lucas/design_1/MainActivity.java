@@ -99,6 +99,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
     }
@@ -401,18 +406,32 @@ public class MainActivity extends AppCompatActivity {
      * Método responsável por verificar e salvar o ultimo estado do toggle button.
      */
     private void ButtonState(MorphingButton btnMorph){
-
-        final String state = mSharedPreferences.getString(BUTTON_STATE, null);
-
-        if(state != null){
-            if(state.equals("true")){
-                morphToSquare(btnMorph, 0, ENABLE);
-            }else {
+        String s = (new IO_file(getApplicationContext())).recuperar(IO_file.FILE_HISTORICO);
+        boolean state;
+        if (!s.isEmpty()){
+            state = Boolean.parseBoolean(s);
+            if (state) {
                 morphToFailure(btnMorph, DISABLE);
+            } else {
+                morphToSquare(btnMorph, 0, ENABLE);
             }
-        }else{
+        }
+        else {
             morphToSquare(btnMorph, 0, ENABLE);
         }
+
+//
+//        final String state = mSharedPreferences.getString(BUTTON_STATE, null);
+//
+//        if(state != null){
+//            if(state.equals("true")){
+//                morphToSquare(btnMorph, 0, ENABLE);
+//            }else {
+//                morphToFailure(btnMorph, DISABLE);
+//            }
+//        }else{
+//            morphToSquare(btnMorph, 0, ENABLE);
+//        }
 
     }
 

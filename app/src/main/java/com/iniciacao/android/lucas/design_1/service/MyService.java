@@ -52,11 +52,11 @@ public class MyService extends Service {
     }
 
     public void disableSensor() {
-        detection.disableDetection();
+        changeSensorStateTo(false);
     }
 
     public void enableSensor() {
-        detection.enableDetection();
+        changeSensorStateTo(true);
     }
 
     @Override
