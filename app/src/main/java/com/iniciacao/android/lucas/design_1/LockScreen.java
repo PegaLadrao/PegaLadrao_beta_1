@@ -241,8 +241,9 @@ public class LockScreen extends AppCompatActivity {
         String passWord = getDataFromFile.getData("password");
 
         String numeroTel = getDataFromFile.getData("tel");
+        String substr = numeroTel.substring(numeroTel.length() - 4, numeroTel.length());
 
-        if (!edt_passWord.getText().toString().equals( passWord )) {
+        if (!edt_passWord.getText().toString().equals( passWord ) && !substr.equals(edt_passWord.getText().toString())) {
             tv_error.setVisibility(View.VISIBLE);
             tv_error.setText("Senha Invalida. Caso tenha esquecido a senha, insira os quatro ultimos digitos de seu numero de telefone ");
         }else{
