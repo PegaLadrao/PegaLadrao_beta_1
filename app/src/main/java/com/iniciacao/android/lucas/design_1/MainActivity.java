@@ -36,6 +36,7 @@ import com.iniciacao.android.lucas.design_1.service.MyService;
 import com.iniciacao.android.lucas.design_1.service.VirtualService;
 import com.iniciacao.android.lucas.design_1.tools.IO_file;
 import com.iniciacao.android.lucas.design_1.tools.NotificationTools;
+import com.iniciacao.android.lucas.design_1.tools.SMSLocation;
 
 import io.github.yavski.fabspeeddial.FabSpeedDial;
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private KeyguardManager mKeyguardManager;
 
     private IO_file mIO_file;
+
+    private SMSLocation smsLocation;
 
     private MorphingButton morphingButton;
 
@@ -209,6 +212,8 @@ public class MainActivity extends AppCompatActivity {
 
         mIO_file = new IO_file(this);
 
+        smsLocation = new SMSLocation(this);
+
         mKeyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
 
     }
@@ -361,9 +366,25 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.i("TAG","isAdmin = true");
 
-                    if(permissionRequest()) {
+                    if(smsLocation.isGpsOn()) {
 
-                        return true;
+                        Log.i("TAG","isGpsOn = true");
+
+                        if (permissionRequest()) {
+
+                            return true;
+                        }
+                    }else{
+                        Log.i("TAG","isGpsOn = false");
+                        Snackbar.make(relativeLayout,"Seu GPS está desabilitado, favor habilitar", Snackbar.LENGTH_LONG)
+                                .setAction("\nHabilitar", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                        startActivity(intent);
+                                    }
+                                })
+                                .show();
                     }
 
                 }
