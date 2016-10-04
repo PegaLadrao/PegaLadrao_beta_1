@@ -48,7 +48,7 @@ public class SMSLocation implements LocationListener {
     }
 
     public void setAtive(boolean ative) {
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false) {
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Toast.makeText(context, "LocationManager: Provider is disabled", Toast.LENGTH_SHORT).show();
         }
 
@@ -69,8 +69,17 @@ public class SMSLocation implements LocationListener {
         return number;
     }
 
+    public boolean isGpsOn(){
+        return (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+    }
+
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    public SMSLocation(Context context){
+        this.context = context;
+        locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
     }
 
     public SMSLocation(Context context, final long SMSTime, long GPSTime, final boolean ative) {

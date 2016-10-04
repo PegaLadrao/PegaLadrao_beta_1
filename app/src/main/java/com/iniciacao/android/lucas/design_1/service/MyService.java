@@ -3,6 +3,8 @@ package com.iniciacao.android.lucas.design_1.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.CountDownTimer;
 import android.os.IBinder;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.iniciacao.android.lucas.design_1.R;
 import com.iniciacao.android.lucas.design_1.tools.GetDataFromFile;
 import com.iniciacao.android.lucas.design_1.tools.IO_file;
 import com.iniciacao.android.lucas.design_1.sensor.Detection;
@@ -21,12 +24,15 @@ import com.iniciacao.android.lucas.design_1.tools.SMSLocation;
 public class MyService extends Service {
     private Detection detection;
     private boolean lastState;
+    private MediaPlayer mediaPlayer;
+
 
     String service = "MyService: ";
     @Override
     public void onCreate() {
         super.onCreate();
 
+        mediaPlayer = MediaPlayer.create(this, R.raw.siren);
         mNotificationTools = new NotificationTools(this);
         detection = new Detection(getApplicationContext());
         boolean tmp = retrieveLastState();
@@ -134,6 +140,8 @@ public class MyService extends Service {
     private long pattern[] = { 0, 100, 200, 300, 400 };
     public void startVibrate() {vibrator.vibrate(pattern, 0);setLastState(true);}
     public void stopVibrate() {setLastState(false);vibrator.cancel();}
+    public void startSiren(){mediaPlayer.start();}
+    public void stopSiren(){mediaPlayer.stop();}
     public void sendSMS() { setLastState(true);smsLocation.setAtive(true);}
     public void stopSMS() { setLastState(false); smsLocation.setAtive(false);}
 
