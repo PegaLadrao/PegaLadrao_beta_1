@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
@@ -99,7 +100,8 @@ public class LockScreen extends AppCompatActivity {
 
         file = new IO_file(this);
 
-
+        AudioManager mAudioManager = (AudioManager)this.getSystemService(AUDIO_SERVICE);
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
 
         if(file.checkFile(IO_file.FILE_CONFIG_ALERT)){
             String text = new IO_file(getApplicationContext()).recuperar(IO_file.FILE_CONFIG_ALERT);
