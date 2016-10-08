@@ -288,6 +288,5 @@ public class LockScreen extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mConnection);
-//        saveStateToFile();
     }
 }

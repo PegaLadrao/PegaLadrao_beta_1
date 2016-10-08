@@ -493,6 +493,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void task() {
                         myService.getmNotificationTools().deleteNotification();
+                        myService.unregisterStatusListener();
                     }
                     @Override
                     public void update() {
@@ -516,6 +517,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void task() {
                         myService.getmNotificationTools().createNotification();
+                        myService.registerStatusListener();
                     }
                     @Override
                     public void update() {
