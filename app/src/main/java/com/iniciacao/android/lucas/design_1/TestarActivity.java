@@ -1,5 +1,6 @@
 package com.iniciacao.android.lucas.design_1;
 
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.iniciacao.android.lucas.design_1.sensor.Detection;
+import com.iniciacao.android.lucas.design_1.tools.VolumeObserver;
 
 public class TestarActivity extends AppCompatActivity implements View.OnClickListener{
 

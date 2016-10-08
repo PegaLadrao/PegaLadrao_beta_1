@@ -100,9 +100,6 @@ public class LockScreen extends AppCompatActivity {
 
         file = new IO_file(this);
 
-        AudioManager mAudioManager = (AudioManager)this.getSystemService(AUDIO_SERVICE);
-        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
-
         if(file.checkFile(IO_file.FILE_CONFIG_ALERT)){
             String text = new IO_file(getApplicationContext()).recuperar(IO_file.FILE_CONFIG_ALERT);
             tv_msgAlerta.setText(text);
@@ -216,6 +213,7 @@ public class LockScreen extends AppCompatActivity {
                         public void task() {
                             myService.sendSMS();
                             myService.startSiren();
+                            myService.addObserverAndAlwaysMaxVolume();
                         }
                         @Override
                         public void update() {
@@ -268,6 +266,7 @@ public class LockScreen extends AppCompatActivity {
                 public void task() {
                     myService.stopSiren();
                     myService.stopSMS();
+                    myService.removeObserver();
                 }
                 @Override
                 public void update() {

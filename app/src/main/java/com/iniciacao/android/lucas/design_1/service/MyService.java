@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.util.Log;
@@ -19,6 +20,7 @@ import com.iniciacao.android.lucas.design_1.tools.IO_file;
 import com.iniciacao.android.lucas.design_1.sensor.Detection;
 import com.iniciacao.android.lucas.design_1.tools.NotificationTools;
 import com.iniciacao.android.lucas.design_1.tools.SMSLocation;
+import com.iniciacao.android.lucas.design_1.tools.VolumeObserver;
 
 
 public class MyService extends Service {
@@ -174,5 +176,20 @@ public class MyService extends Service {
 
     public void setmNotificationTools(NotificationTools mNotificationTools) {
         this.mNotificationTools = mNotificationTools;
+    }
+
+    // ==================== Volume observer ====================
+    private VolumeObserver volumeObserver;
+    public void addObserverAndAlwaysMaxVolume() {
+        if (volumeObserver == null) {
+            volumeObserver = new VolumeObserver(getApplicationContext(), new Handler());
+        }
+        getApplicationContext().getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, volumeObserver);
+    }
+
+    public void removeObserver() {
+        if (volumeObserver != null) {
+            getApplicationContext().getContentResolver().unregisterContentObserver(volumeObserver);
+        }
     }
 }
