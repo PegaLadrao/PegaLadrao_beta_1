@@ -213,6 +213,7 @@ public class LockScreen extends AppCompatActivity {
                         @Override
                         public void task() {
                             myService.sendSMS();
+                            myService.startSiren();
                         }
                         @Override
                         public void update() {
@@ -263,6 +264,7 @@ public class LockScreen extends AppCompatActivity {
             (new MyAsyncTask(myService) {
                 @Override
                 public void task() {
+                    myService.stopSiren();
                     myService.stopSMS();
                 }
                 @Override

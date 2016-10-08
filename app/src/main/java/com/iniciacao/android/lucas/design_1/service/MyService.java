@@ -140,8 +140,14 @@ public class MyService extends Service {
     private long pattern[] = { 0, 100, 200, 300, 400 };
     public void startVibrate() {vibrator.vibrate(pattern, 0);setLastState(true);}
     public void stopVibrate() {setLastState(false);vibrator.cancel();}
-    public void startSiren(){mediaPlayer.start();}
-    public void stopSiren(){mediaPlayer.stop();}
+    public void startSiren(){
+        mediaPlayer = MediaPlayer.create(this, R.raw.siren);
+        mediaPlayer.start();
+    }
+    public void stopSiren(){
+        if (mediaPlayer != null)
+            mediaPlayer.stop();
+    }
     public void sendSMS() { setLastState(true);smsLocation.setAtive(true);}
     public void stopSMS() { setLastState(false); smsLocation.setAtive(false);}
 

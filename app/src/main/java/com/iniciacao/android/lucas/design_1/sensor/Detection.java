@@ -83,7 +83,6 @@ public class Detection implements SensorEventListener {
                 if (speed > SHAKE_THRESHOLD) {
                     timer--;
 
-                   // makeText(Integer.toString(timer));
                     if (timer == 0) {
                         makeText("gesture detected");
                         IO_file file = new IO_file(mContext);
