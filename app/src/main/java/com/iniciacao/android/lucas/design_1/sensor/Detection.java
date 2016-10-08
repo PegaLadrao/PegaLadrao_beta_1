@@ -85,15 +85,7 @@ public class Detection implements SensorEventListener {
 
                     if (timer == 0) {
                         makeText("gesture detected");
-                        IO_file file = new IO_file(mContext);
-                        String state = file.recuperar(String.valueOf(IO_file.LAST_STATE));
-                        if (state.isEmpty()) {
-                            lockScreen();
-                        } else {
-                            if (!Boolean.parseBoolean(state)) {
-                                lockScreen();
-                            }
-                        }
+                        movimentDetected();
                     }
 
                     lastUpdate += 100;
@@ -101,6 +93,18 @@ public class Detection implements SensorEventListener {
                 } else {
                     timer = TIMER;
                 }
+            }
+        }
+    }
+
+    public void movimentDetected() {
+        IO_file file = new IO_file(mContext);
+        String state = file.recuperar(String.valueOf(IO_file.LAST_STATE));
+        if (state.isEmpty()) {
+            lockScreen();
+        } else {
+            if (!Boolean.parseBoolean(state)) {
+                lockScreen();
             }
         }
     }

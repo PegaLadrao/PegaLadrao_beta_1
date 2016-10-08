@@ -124,6 +124,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.testar) {
+            startActivity(new Intent(this, TestarActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,  int[] grantResults) {
         switch (requestCode){
             case REQUEST_PERMISSIONS_CODE_GPS:{

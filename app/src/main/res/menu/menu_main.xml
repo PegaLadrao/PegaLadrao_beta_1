@@ -4,4 +4,8 @@
         android:id="@+id/sobre"
         android:title="Sobre"
         android:icon="@android:drawable/ic_menu_help"/>
+    <item
+        android:id="@+id/testar"
+        android:title="Testar"
+        android:icon="@android:drawable/ic_menu_help"/>
 </menu>

@@ -34,4 +34,9 @@
         <item>5 minutos</item>
     </array>
 
+    <!--TestarActivity-->
+    <string name="tst_btn"></string>
+    <string name="tst_lbl1">Aperte o button e depois sacude o celular.</string>
+    <string name="tst_lbl2"></string>
+
 </resources>
