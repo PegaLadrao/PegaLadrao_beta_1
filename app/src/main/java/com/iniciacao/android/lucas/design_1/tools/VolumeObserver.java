@@ -26,6 +26,8 @@ public class VolumeObserver extends ContentObserver {
 
         AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         lastVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+        checkRingerMode();
+
         audio.setStreamVolume(AudioManager.STREAM_MUSIC, audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
     }
 
@@ -34,6 +36,9 @@ public class VolumeObserver extends ContentObserver {
         super.onChange(selfChange);
 
         AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+        checkRingerMode();
+
         int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
 
         int delta = lastVolume - currentVolume;
@@ -47,5 +52,26 @@ public class VolumeObserver extends ContentObserver {
     public void volumeChanged() {
         AudioManager mAudioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
         mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+    }
+
+    private void checkRingerMode(){
+
+        AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+        switch (audio.getRingerMode()){
+
+            case AudioManager.RINGER_MODE_SILENT:
+
+                audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC,  audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+
+                break;
+            case AudioManager.RINGER_MODE_VIBRATE:
+                audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC,  audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+                break;
+
+            default:
+        }
     }
 }

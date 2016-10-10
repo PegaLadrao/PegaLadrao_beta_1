@@ -40,6 +40,7 @@ public class NotificationTools {
         mNotificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
         builder = new NotificationCompat.Builder(context.getApplicationContext());
 
+
     }
 
     // ========================= Notificação ========================= //

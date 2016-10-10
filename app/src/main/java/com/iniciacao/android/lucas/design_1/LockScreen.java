@@ -11,13 +11,11 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,9 +24,8 @@ import com.iniciacao.android.lucas.design_1.service.MyAsyncTask;
 import com.iniciacao.android.lucas.design_1.service.MyService;
 import com.iniciacao.android.lucas.design_1.tools.GetDataFromFile;
 import com.iniciacao.android.lucas.design_1.tools.IO_file;
+import com.iniciacao.android.lucas.design_1.tools.NotificationTools;
 import com.iniciacao.android.lucas.design_1.tools.SMSLocation;
-
-import org.w3c.dom.Text;
 
 public class LockScreen extends AppCompatActivity {
 
@@ -47,6 +44,8 @@ public class LockScreen extends AppCompatActivity {
     private InputMethodManager inputMethodManager;
 
     private IO_file file;
+
+    private NotificationTools notificationTools;
 
     private EditText edt_passWord;
 
@@ -100,6 +99,8 @@ public class LockScreen extends AppCompatActivity {
 
         file = new IO_file(this);
 
+        notificationTools = new NotificationTools(this);
+
         if(file.checkFile(IO_file.FILE_CONFIG_ALERT)){
             String text = new IO_file(getApplicationContext()).recuperar(IO_file.FILE_CONFIG_ALERT);
             tv_msgAlerta.setText(text);
@@ -113,6 +114,8 @@ public class LockScreen extends AppCompatActivity {
                 inputMethodManager.showSoftInput(v , InputMethodManager.SHOW_IMPLICIT);
             }
         });
+
+        checkRingerMode();
 
         btn_checkPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,13 +157,13 @@ public class LockScreen extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                Toast.makeText(this, "back", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "back", Toast.LENGTH_SHORT).show();
                 return true;
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                Toast.makeText(this, "down", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "down", Toast.LENGTH_SHORT).show();
                 return true;
             case KeyEvent.KEYCODE_VOLUME_UP:
-                Toast.makeText(this, "up", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "up", Toast.LENGTH_SHORT).show();
                 return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -211,6 +214,7 @@ public class LockScreen extends AppCompatActivity {
                     (new MyAsyncTask(myService) {
                         @Override
                         public void task() {
+                            checkRingerMode();
                             myService.sendSMS();
                             myService.startSiren();
                             myService.addObserverAndAlwaysMaxVolume();
@@ -288,5 +292,26 @@ public class LockScreen extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mConnection);
+    }
+
+    private void checkRingerMode(){
+
+        AudioManager audio = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+
+        switch (audio.getRingerMode()){
+
+            case AudioManager.RINGER_MODE_SILENT:
+
+                audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC,  audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+
+                break;
+            case AudioManager.RINGER_MODE_VIBRATE:
+                audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC,  audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+                break;
+
+            default:
+        }
     }
 }

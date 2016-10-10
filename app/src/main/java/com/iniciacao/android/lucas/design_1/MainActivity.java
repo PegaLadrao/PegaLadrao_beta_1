@@ -35,7 +35,6 @@ import com.iniciacao.android.lucas.design_1.service.MyAsyncTask;
 import com.iniciacao.android.lucas.design_1.service.MyService;
 import com.iniciacao.android.lucas.design_1.service.VirtualService;
 import com.iniciacao.android.lucas.design_1.tools.IO_file;
-import com.iniciacao.android.lucas.design_1.tools.NotificationTools;
 import com.iniciacao.android.lucas.design_1.tools.SMSLocation;
 
 import io.github.yavski.fabspeeddial.FabSpeedDial;
