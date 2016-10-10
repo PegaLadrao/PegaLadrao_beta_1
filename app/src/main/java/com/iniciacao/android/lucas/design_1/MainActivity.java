@@ -109,6 +109,41 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        String s = (new IO_file(getApplicationContext())).recuperar(IO_file.FILE_HISTORICO);
+        boolean state;
+        if (!s.isEmpty()){
+            state = Boolean.parseBoolean(s);
+            if (state) {
+                if (!smsLocation.isGpsOn()) {
+
+                    mVirtualService.disableSensor();
+                    morphToSquare(morphingButton, 500, ENABLE);
+
+                    mSharedPreferences_editor.putString(BUTTON_STATE, "true");
+
+                    mSharedPreferences_editor.apply();
+
+                    (new MyAsyncTask(myService) {
+                        @Override
+                        public void task() {
+                            myService.getmNotificationTools().deleteNotification();
+                            myService.unregisterStatusListener();
+                        }
+                        @Override
+                        public void update() {
+                            updateObject(myService);
+                        }
+                        @Override
+                        public void errorTaskFailed() {}
+                    }).startTask();
+                }
+            }
+        }
+//        if (smsLocation.isGpsOn()) {
+//            morphToFailure(morphingButton, DISABLE);
+//        } else {
+//            morphToSquare(morphingButton, 0, ENABLE);
+//        }
     }
 
     @Override
@@ -382,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
 
                             return true;
                         }
-                    }else{
+                    } else {
                         Log.i("TAG","isGpsOn = false");
                         Snackbar.make(relativeLayout,"Seu GPS está desabilitado, favor habilitar", Snackbar.LENGTH_LONG)
                                 .setAction("\nHabilitar", new View.OnClickListener() {
@@ -394,7 +429,6 @@ public class MainActivity extends AppCompatActivity {
                                 })
                                 .show();
                     }
-
                 }
                 else {
 
@@ -479,10 +513,10 @@ public class MainActivity extends AppCompatActivity {
 
         if(startProtectAvailable()) {
 
+
             if (btnMorph.getText() == DISABLE) {
 
                 mVirtualService.disableSensor();
-
                 morphToSquare(btnMorph, 500, ENABLE);
 
                 mSharedPreferences_editor.putString(BUTTON_STATE, "true");
