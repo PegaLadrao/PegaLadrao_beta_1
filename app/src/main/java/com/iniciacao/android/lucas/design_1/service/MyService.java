@@ -1,9 +1,11 @@
 package com.iniciacao.android.lucas.design_1.service;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -22,6 +24,7 @@ import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.iniciacao.android.lucas.design_1.R;
@@ -51,7 +54,10 @@ public class MyService extends Service {
         detection = new Detection(getApplicationContext());
         boolean tmp = retrieveLastState();
         detection.changeStateTo(tmp);
-        if (tmp) mNotificationTools.createNotification();
+        if (tmp) {
+            mNotificationTools.createNotification();
+            this.registerStatusListener();
+        }
         message("onCreate");
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -131,7 +137,6 @@ public class MyService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
 //        throw new UnsupportedOperationException("Not yet implemented");
         return localBinder;
     }
@@ -231,8 +236,11 @@ public class MyService extends Service {
             boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             if (gpsEnabled) {
                 Toast.makeText(getApplicationContext(), "Provider enabled from receiver", Toast.LENGTH_SHORT).show();
+
             } else {
-                Toast.makeText(getApplicationContext(), "Provider disabled from receiver", Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(MyService.this, DialogActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                MyService.this.startActivity(i);
             }
         }
     }
